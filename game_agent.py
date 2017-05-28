@@ -170,6 +170,44 @@ class MinimaxPlayer(IsolationPlayer):
         # Return the best move from the last completed search iteration
         return best_move
 
+    def max_value(self, game, depth):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+        
+        legal_moves = game.get_legal_moves()
+
+        if not legal_moves:
+            return game.utility(self)
+
+        if depth <= 0:
+            return max([self.score(game, self) for move in legal_moves])
+
+        best_score = float('-inf')
+
+        for move in legal_moves:
+            best_score = max([best_score, self.min_value(game.forecast_move(move), depth - 1)])
+
+        return best_score
+    
+    def min_value(self, game, depth):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+            
+        legal_moves = game.get_legal_moves()
+
+        if not legal_moves:
+            return game.utility(self)
+        
+        if depth <= 0:
+            return min([self.score(game, self) for move in legal_moves])
+        
+        best_score = float('inf')
+
+        for move in legal_moves:
+            best_score = min([best_score, self.max_value(game.forecast_move(move), depth - 1)])
+               
+        return best_score
+
     def minimax(self, game, depth):
         """Implement depth-limited minimax search algorithm as described in
         the lectures.
@@ -211,9 +249,17 @@ class MinimaxPlayer(IsolationPlayer):
         """
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
+            
+        legal_moves = game.get_legal_moves()
+        
+        best_score = float('-inf')
+        for move in legal_moves:
+            score = self.min_value(game.forecast_move(move), depth-1)
+            if score > best_score:
+                best_move = move
+                best_score = score
+        return best_move if best_move else (-1,-1)
 
-        # TODO: finish this function!
-        raise NotImplementedError
 
 
 class AlphaBetaPlayer(IsolationPlayer):
@@ -305,5 +351,6 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        legal_moves = game.get_legal_moves()
+
+        return legal_moves[0]
