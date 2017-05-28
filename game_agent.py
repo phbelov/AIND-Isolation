@@ -418,5 +418,6 @@ class AlphaBetaPlayer(IsolationPlayer):
             if score > best_score:
                 best_move = move
                 best_score = score
+                alpha = max(alpha, best_score)
 
         return best_move if best_move else (-1,-1)
